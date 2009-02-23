@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# coding: shift-jis
+# coding: utf-8
 # http://www.gesource.jp/programming/python/code/0008.html
 # http://sheep.art.pl/2007-10-25_Wiki_parser_in_python
 import sys; sys.path += [
@@ -63,7 +63,7 @@ class Wiki(object):
 	def ShowPage(self, page='Home'):
 		pageFile = self.pageFile(page)
 		if os.path.isfile(pageFile):
-			self.Write('Content-Type: text/html; charset=shift-jis\n\n')
+			self.Write('Content-Type: text/html; charset=utf-8\n\n')
 			showHTML = WikiParser().ParseFile(pageFile)
 			html = self.indexTmpl.substitute({'title': page, 'body': showHTML, 'dir': self.dir()})
 			self.Write(html)
@@ -83,7 +83,7 @@ class Wiki(object):
 		)
 		html = self.indexTmpl.substitute({'title': page, 'body': editHTML, 'dir': self.dir()})
 		if self.ipCheck():
-			self.Write('Content-Type: text/html; charset=shift-jis\n\n')
+			self.Write('Content-Type: text/html; charset=utf-8\n\n')
 			self.Write(html)
 		else:
 			self.Error()
@@ -96,7 +96,7 @@ class Wiki(object):
 	def Jump(self, to):
 		self.Write('location: '+'http://' + self.httpHost + self.scriptName + to + '\n\n')
 	def Error(self):
-		self.Write('Content-Type: text/html; charset=shift-jis\n\n')
+		self.Write('Content-Type: text/html; charset=utf-8\n\n')
 		self.Write('Error')
 
 class WikiParser(object):
@@ -141,7 +141,7 @@ class WikiParser(object):
 			+ r"|(?P<http>\[(.+)\])"
 			+ r")")
 		patterns = (
-			re.compile(r'(\*{1,3})(.+)'),	#0		Œ©o‚µ
+			re.compile(r'(\*{1,3})(.+)'),	#0		è¦‹å‡ºã—
 			re.compile(r'>\|\|'),			#1		<pre>
 			re.compile(r'\|\|<'),			#2		</pre>
 			re.compile(r'----'),			#3		<hr />
@@ -152,7 +152,7 @@ class WikiParser(object):
 			re.compile(r'<<'),				#8		</backquote>
 			re.compile(r"(s?https?://[-_.!~*'()a-zA-Z0-9;/?:@&=+$,%#]+)"),#9	url
 			re.compile(r'\[(.+)\]'),		#10		http
-			re.compile(r':(.+):(.+)'),		#11		’è‹`
+			re.compile(r':(.+):(.+)'),		#11		å®šç¾©
 			re.compile(r'\|(.+)\|'),		#12		table
 			re.compile(r'(\++)(.+)')		#13		li ol
 			)
@@ -176,7 +176,7 @@ class WikiParser(object):
 			temp = {}
 			line = i
 			if len(i) > 0:
-				line = self.Chomp(line).decode('shift-jis', 'ignore')
+				line = self.Chomp(line).decode('utf-8', 'ignore')
 			#
 			#print flags
 			if flags['pre']:
@@ -208,15 +208,15 @@ class WikiParser(object):
 					flags['cmnt'] = not flags['cmnt']
 				continue
 			#
-			# Œ©o‚µ
+			# è¦‹å‡ºã—
 			if patterns[0].match(line):
 				temp[0] = str(len(patterns[0].match(line).group(1)))# + 2)
 				temp[1] = patterns[0].match(line).group(2)
 				result.append('<h'+temp[0]+'>'+re.sub(repl_re, self.replace, temp[1])+'</h'+temp[0]+'>')
-			# …•½ü
+			# æ°´å¹³ç·š
 			elif patterns[3].match(line):
 				result.append('<hr />')
-			# ˆø—p
+			# å¼•ç”¨
 			elif patterns[7].match(line):
 				result.append('<backquote>')
 			elif patterns[8].match(line):
@@ -225,10 +225,10 @@ class WikiParser(object):
 			elif patterns[1].match(line):
 				result.append('<pre>')
 				flags['pre'] = not flags['pre']
-			# ƒRƒƒ“ƒg
+			# ã‚³ãƒ¡ãƒ³ãƒˆ
 			elif patterns[4].match(line):
 				flags['cmnt'] = not flags['cmnt']
-			# ’è‹`
+			# å®šç¾©
 			elif patterns[11].match(line):
 				if not flags['desc']:
 					result.append('<dl>')
@@ -239,7 +239,7 @@ class WikiParser(object):
 				dd = '<dd>'+re.sub(repl_re, self.replace, dd)+'</dd>'
 				result.append(dt)
 				result.append(dd)
-			# ƒe[ƒuƒ‹
+			# ãƒ†ãƒ¼ãƒ–ãƒ«
 			elif patterns[12].match(line):
 				if not flags['table']:
 					result.append('<table>')
@@ -297,13 +297,13 @@ class WikiParser(object):
 					)+
 					'</li>'
 				)
-			# s
+			# replace
 			else:
 				line = re.sub(repl_re, self.replace, line)
 				result.append(line)#cgi.escape(
 				result.append('<br />')
 				
-		return '\n'.join(result).encode('shift-jis', 'ignore')
+		return '\n'.join(result).encode('utf-8', 'ignore')
 
 if __name__ == '__main__':
 	Wiki()
